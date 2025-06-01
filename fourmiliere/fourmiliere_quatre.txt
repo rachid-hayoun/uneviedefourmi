@@ -1,0 +1,134 @@
+f=10
+S1 { 2 }
+S2
+S3
+S4 { 2 }
+S5
+S6
+S3 - S4
+Sv - S1
+S1 - S2
+S2 - S4
+S4 - S5
+S5 - Sd
+S4 - S6
+S6 - Sd
+S1 - S3
+
+
+#include <iostream>
+#include "index.hxx"
+#include <list>     
+
+void Structur::afficherSchema() {
+    std::cout << " ____________________________________________________________________________________________\n";
+    std::cout << "|              _____________            ______________              _____________            |\n";
+    std::cout << "|             |             |          |              |            |             |           |\n";
+    std::cout << "|    v        |             |  s1      |              |  s2        |             | s3        |\n";
+    std::cout << "|             |             |__________|              |___     ____|             |___________|\n";
+    std::cout << "|             |                                           |   |\n";
+    std::cout << "|_____________|                                           |   |\n";
+    std::cout << "                            ______________________________|   |\n";
+    std::cout << "                           |                                  |\n";
+    std::cout << "                           |     _____________________________|\n";
+    std::cout << "                           |    |\n";
+    std::cout << "                           |    |\n";
+    std::cout << "                           |    |\n";
+    std::cout << "                           |    |\n";
+    std::cout << "                           |    |___________________________________________________________ \n";
+    std::cout << "                           |            _______________              ____________           |\n";
+    std::cout << "                           |    s4     |               | s5         |            | s6       |\n";
+    std::cout << "                           |           |               |            |            |          |\n";
+    std::cout << "                           |___________|               |___     ____|            |______    |\n";
+    std::cout << "                                                           |   |                        |   |\n";
+    std::cout << "                                                           |   |                        |   |\n";
+    std::cout << "                                                           |   |                        |   |\n";
+    std::cout << "                                                           |   |                        |   |\n";
+    std::cout << "                                                           |   |________________________|   |\n";
+    std::cout << "                                                           |________________                |\n";
+    std::cout << "                                                                            |               |\n";
+    std::cout << "                                                                            |       d       |\n";
+    std::cout << "                                                                            |               |\n";
+    std::cout << "                                                                            |               |\n";
+    std::cout << "                                                                            |               |\n";
+    std::cout << "                                                                            |_______________|\n";
+}
+
+
+using namespace std;
+
+const int F = 10;    // Nombre de fourmis
+const int SALLES = 6; // Salles + vestibule + dortoir
+
+class Fourmiliere {
+private:
+    struct Salle {
+        list<int> fourmis;
+        int capacite;
+    };
+
+    vector<Salle> salles;
+    vector<list<int>> graphe;
+
+public:
+    Fourmiliere() : salles(SALLES + 2), graphe(SALLES + 2) {
+        // Configuration des capacités
+        for (int i = 0; i <= SALLES + 1; i++) {
+            salles[i].capacite = (i == 0 || i == SALLES + 1) ? F : 2;
+        }
+
+        // Construction du graphe (connexions entre salles)
+        for (int i = 0; i <= SALLES; i++) {
+            graphe[i].push_back(i + 1);
+        }
+    }
+
+    void initialiser() {
+        // Placer toutes les fourmis dans le vestibule (salle 0)
+        for (int i = 0; i < F; i++) {
+            salles[0].fourmis.push_back(i);
+        }
+    }
+
+    void afficher() {
+        for (int i = 0; i <= SALLES + 1; i++) {
+            cout << "Salle " << i << " (" << salles[i].fourmis.size() << " fourmis): ";
+            for (int f : salles[i].fourmis) cout << f << " ";
+            cout << endl;
+        }
+        cout << "---------------------" << endl;
+    }
+
+    void tour() {
+        for (int i = SALLES; i >= 0; i--) {
+            if (!graphe[i].empty()) {
+                int next_salle = graphe[i].front();
+                
+                while (!salles[i].fourmis.empty() && salles[next_salle].fourmis.size() < salles[next_salle].capacite) {
+                    int fourmi = salles[i].fourmis.front();
+                    salles[i].fourmis.pop_front();
+                    salles[next_salle].fourmis.push_back(fourmi);
+                }
+            }
+        }
+    }
+
+    bool termine() {
+        return salles[SALLES + 1].fourmis.size() == F;
+    }
+};
+
+int main() {
+    Fourmiliere colonie;
+    colonie.initialiser();
+    int tour = 0;
+
+    while (!colonie.termine()) {
+        cout << "Tour " << ++tour << endl;
+        colonie.afficher();
+        colonie.tour();
+    }
+
+    cout << "Tous les fourmis ont atteint le dortoir en " << tour << " tours" << endl;
+    return 0;
+}
